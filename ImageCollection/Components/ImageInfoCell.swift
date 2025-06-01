@@ -30,16 +30,7 @@ final class ImageInfoCell: UICollectionViewCell {
     $0.textColor = .white
   }
 
-  private let likeImageView = UIImageView(
-    image: UIImage(
-      systemName: "heart.fill",
-      withConfiguration: UIImage.SymbolConfiguration(font: .systemFont(ofSize: 13))
-    )
-  ).then {
-    $0.tintColor = .systemRed
-  }
-
-  private let likeCountLabel = UILabel().then {
+  private let likeCountView = LikeCountView().then {
     $0.font = .systemFont(ofSize: 13, weight: .medium)
     $0.textColor = .white
   }
@@ -57,16 +48,13 @@ final class ImageInfoCell: UICollectionViewCell {
         } else {
           profileImageView.image = nil
         }
-
-        likeImageView.isHidden = false
-        likeCountLabel.isHidden = false
-        likeCountLabel.text = "\(imageInfo.likes.formatted(.number))"
+        likeCountView.isHidden = false
+        likeCountView.count = imageInfo.likes
       } else {
         imageView.image = nil
         profileImageView.image = nil
         profileImageView.image = nil
-        likeImageView.isHidden = true
-        likeCountLabel.isHidden = true
+        likeCountView.isHidden = true
       }
       userNameLabel.text = imageInfo?.user.name
     }
@@ -95,12 +83,8 @@ final class ImageInfoCell: UICollectionViewCell {
     }
 
     // Like icon, count
-    let likeStackView = UIStackView(arrangedSubviews: [likeImageView, likeCountLabel]).then {
-      $0.axis = .horizontal
-      $0.spacing = 2
-    }
-    likeBackgroundView.addSubview(likeStackView)
-    likeStackView.snp.makeConstraints {
+    likeBackgroundView.addSubview(likeCountView)
+    likeCountView.snp.makeConstraints {
       $0.top.bottom.equalToSuperview().inset(4)
       $0.leading.trailing.equalToSuperview().inset(8)
     }

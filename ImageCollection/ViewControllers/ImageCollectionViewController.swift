@@ -7,6 +7,7 @@
 
 import UIKit
 import SnapKit
+import Kingfisher
 import Then
 
 final class ImageCollectionViewController: UIViewController {
@@ -14,20 +15,31 @@ final class ImageCollectionViewController: UIViewController {
   private let category: ImageCategory
 
   private lazy var collectionView = UICollectionView(frame: .zero, collectionViewLayout: makeCollectionViewLayout()).then {
+    $0.delegate = self
     $0.directionalLayoutMargins = NSDirectionalEdgeInsets(top: 0, leading: 20, bottom: 0, trailing: 20)
   }
 
   private lazy var dataSource = makeCollectionViewDataSource(collectionView)
 
+  private var deinitHandler: (() -> Void)?
+
   init(category: ImageCategory) {
     self.repository = ImageRepository()
     self.category = category
     super.init(nibName: nil, bundle: nil)
+    self.deinitHandler = {
+      ImageCache.default.clearMemoryCache()
+      print("deinit \(self)")
+    }
   }
 
   @available(*, unavailable)
   required init?(coder: NSCoder) {
     fatalError("init(coder:) has not been implemented")
+  }
+
+  deinit {
+    deinitHandler?()
   }
 
   override func viewDidLoad() {
@@ -48,7 +60,19 @@ final class ImageCollectionViewController: UIViewController {
       },
       menu: nil
     )
-    fetchImages()
+    fetchImages(page: 1)
+  }
+}
+
+// MARK: - ImageCollectionViewController (UICollectionViewDelegate)
+
+extension ImageCollectionViewController: UICollectionViewDelegate {
+  func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+    guard let imageInfo = dataSource.itemIdentifier(for: indexPath) else {
+      return
+    }
+    let detailViewController = ImageDetailViewController(imageInfo: imageInfo)
+    navigationController?.pushViewController(detailViewController, animated: true)
   }
 }
 
@@ -59,8 +83,8 @@ extension ImageCollectionViewController {
     fetchImages()
   }
 
-  private func fetchImages() {
-    repository.fetchImages(category: category) { result in
+  private func fetchImages(page: Int? = nil) {
+    repository.fetchImages(category: category, page: page) { result in
       let images: [ImageInfo]
       switch result {
       case .success(let items):

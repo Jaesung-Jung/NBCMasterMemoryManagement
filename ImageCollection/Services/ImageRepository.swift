@@ -8,13 +8,14 @@
 import Foundation
 import Then
 
-struct ImageRepository {
+final class ImageRepository {
   private let host = URL(string: "https://unsplash.com")!
   private let session = URLSession.shared
+  private var completionHandler: ((Result<[ImageInfo], Swift.Error>) -> Void)?
 
-  func fetchImages(category: ImageCategory, completion: @escaping (Result<[ImageInfo], Swift.Error>) -> Void) {
+  func fetchImages(category: ImageCategory, page: Int? = nil, completion: @escaping (Result<[ImageInfo], Swift.Error>) -> Void) {
     do {
-      let page = Int.random(in: 1...100)
+      let page = page ?? Int.random(in: 1...100)
       let count = 30
       let request = try makeURLRequest(path: "/napi/topics/\(category.rawValue)/photos", page: page, count: count)
       session.dataTask(with: request) { data, _, error in
@@ -35,6 +36,7 @@ struct ImageRepository {
     } catch {
       completion(.failure(error))
     }
+    completionHandler = completion
   }
 }
 
