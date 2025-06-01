@@ -6,7 +6,7 @@
 //
 
 enum ImageCategory: String, CaseIterable {
-  case wallpaper
+  case wallpaper = "wallpapers"
   case nature
   case renders3d = "3d-renders"
   case textures = "textures-patterns"

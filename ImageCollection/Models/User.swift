@@ -42,9 +42,17 @@ struct User: Decodable {
 // MARK: - User.Social
 
 extension User {
-  struct Social: Decodable {
+  struct Social: Decodable, Equatable {
     let instagram: String?
     let twitter: String?
     let portfolio: URL?
+  }
+}
+
+// MARK: - User (Hashable)
+
+extension User: Hashable {
+  func hash(into hasher: inout Hasher) {
+    hasher.combine(id)
   }
 }

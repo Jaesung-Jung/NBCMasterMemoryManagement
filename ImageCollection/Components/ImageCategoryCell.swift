@@ -72,7 +72,7 @@ final class ImageCategoryCell: UICollectionViewCell {
     }
 
     let gradientView = GradientView(
-      colors: [.black.withAlphaComponent(0), .black.withAlphaComponent(0.3)],
+      colors: [.black.withAlphaComponent(0), .black.withAlphaComponent(0.5)],
       startPoint: CGPoint(x: 0, y: 0),
       endPoint: CGPoint(x: 0, y: 1)
     )

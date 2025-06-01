@@ -11,6 +11,7 @@ import Then
 
 final class HomeViewController: UIViewController {
   private lazy var collectionView = UICollectionView(frame: .zero, collectionViewLayout: makeCollectionViewLayout()).then {
+    $0.delegate = self
     $0.backgroundColor = .clear
   }
 
@@ -18,7 +19,7 @@ final class HomeViewController: UIViewController {
 
   override func viewDidLoad() {
     super.viewDidLoad()
-    title = "Home"
+    title = "홈"
     view.backgroundColor = .systemBackground
 
     view.addSubview(collectionView)
@@ -30,6 +31,18 @@ final class HomeViewController: UIViewController {
     snapshot.appendSections([0])
     snapshot.appendItems(ImageCategory.allCases, toSection: 0)
     dataSource.apply(snapshot)
+  }
+}
+
+// MARK: - HomeViewController (UICollectionViewDelegate)
+
+extension HomeViewController: UICollectionViewDelegate {
+  func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+    guard let category = dataSource.itemIdentifier(for: indexPath) else {
+      return
+    }
+    let imageCollectionViewController = ImageCollectionViewController(category: category)
+    navigationController?.pushViewController(imageCollectionViewController, animated: true)
   }
 }
 

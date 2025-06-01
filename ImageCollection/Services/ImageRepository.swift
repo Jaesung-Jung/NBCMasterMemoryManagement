@@ -12,8 +12,10 @@ struct ImageRepository {
   private let host = URL(string: "https://unsplash.com")!
   private let session = URLSession.shared
 
-  func fetchImages(category: ImageCategory, page: Int, count: Int, completion: @escaping (Result<[ImageInfo], Swift.Error>) -> Void) {
+  func fetchImages(category: ImageCategory, completion: @escaping (Result<[ImageInfo], Swift.Error>) -> Void) {
     do {
+      let page = Int.random(in: 1...100)
+      let count = 30
       let request = try makeURLRequest(path: "/napi/topics/\(category.rawValue)/photos", page: page, count: count)
       session.dataTask(with: request) { data, _, error in
         guard let data else {
