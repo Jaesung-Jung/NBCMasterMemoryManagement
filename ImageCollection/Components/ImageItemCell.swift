@@ -60,6 +60,18 @@ final class ImageItemCell: UICollectionViewCell {
     }
   }
 
+  override var isHighlighted: Bool {
+    didSet {
+      UIView.animate(withDuration: 0.25) {
+        if self.isHighlighted {
+          self.imageView.transform = CGAffineTransform(scaleX: 1.1, y: 1.1)
+        } else {
+          self.imageView.transform = .identity
+        }
+      }
+    }
+  }
+
   override init(frame: CGRect) {
     super.init(frame: frame)
     contentView.backgroundColor = .placeholderText
