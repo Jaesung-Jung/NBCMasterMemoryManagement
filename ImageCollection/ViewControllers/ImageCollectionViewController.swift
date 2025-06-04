@@ -68,10 +68,10 @@ final class ImageCollectionViewController: UIViewController {
 
 extension ImageCollectionViewController: UICollectionViewDelegate {
   func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-    guard let imageInfo = dataSource.itemIdentifier(for: indexPath) else {
+    guard let imageItem = dataSource.itemIdentifier(for: indexPath) else {
       return
     }
-    let detailViewController = ImageDetailViewController(imageInfo: imageInfo)
+    let detailViewController = ImageDetailViewController(imageItem: imageItem)
     navigationController?.pushViewController(detailViewController, animated: true)
   }
 }
@@ -85,7 +85,7 @@ extension ImageCollectionViewController {
 
   private func fetchImages(page: Int? = nil) {
     repository.fetchImages(category: category, page: page) { result in
-      let images: [ImageInfo]
+      let images: [ImageItem]
       switch result {
       case .success(let items):
         images = items
@@ -98,16 +98,16 @@ extension ImageCollectionViewController {
     }
   }
 
-  private func updateImages(_ images: [ImageInfo]) {
-    var snapshot = NSDiffableDataSourceSnapshot<Int, ImageInfo>()
+  private func updateImages(_ images: [ImageItem]) {
+    var snapshot = NSDiffableDataSourceSnapshot<Int, ImageItem>()
     snapshot.appendSections([0])
     snapshot.appendItems(images, toSection: 0)
     dataSource.apply(snapshot)
   }
 
-  private func makeCollectionViewDataSource(_ collectionView: UICollectionView) -> UICollectionViewDiffableDataSource<Int, ImageInfo> {
-    let cellRegistration = UICollectionView.CellRegistration<ImageInfoCell, ImageInfo> { cell, _, imageInfo in
-      cell.imageInfo = imageInfo
+  private func makeCollectionViewDataSource(_ collectionView: UICollectionView) -> UICollectionViewDiffableDataSource<Int, ImageItem> {
+    let cellRegistration = UICollectionView.CellRegistration<ImageItemCell, ImageItem> { cell, _, imageItem in
+      cell.imageItem = imageItem
     }
     return UICollectionViewDiffableDataSource(collectionView: collectionView) { collectionView, indexPath, item in
       collectionView.dequeueConfiguredReusableCell(using: cellRegistration, for: indexPath, item: item)

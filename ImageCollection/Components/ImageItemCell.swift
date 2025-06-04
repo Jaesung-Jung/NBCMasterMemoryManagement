@@ -1,5 +1,5 @@
 //
-//  ImageInfoCell.swift
+//  ImageItemCell.swift
 //  ImageCollection
 //
 //  Created by 정재성 on 6/1/25.
@@ -10,7 +10,7 @@ import SnapKit
 import Then
 import Kingfisher
 
-final class ImageInfoCell: UICollectionViewCell {
+final class ImageItemCell: UICollectionViewCell {
   private let imageView = UIImageView().then {
     $0.contentMode = .scaleAspectFill
     $0.clipsToBounds = true
@@ -35,28 +35,28 @@ final class ImageInfoCell: UICollectionViewCell {
     $0.textColor = .white
   }
 
-  var imageInfo: ImageInfo? {
+  var imageItem: ImageItem? {
     didSet {
-      if let imageInfo {
-        if let imageURL = URL(string: imageInfo.images.regular) {
+      if let imageItem {
+        if let imageURL = URL(string: imageItem.images.regular) {
           imageView.kf.setImage(with: imageURL, options: [.transition(.fade(0.3))])
         } else {
           imageView.image = nil
         }
-        if let profileImageURL = imageInfo.user.profileImageURL {
+        if let profileImageURL = imageItem.user.profileImageURL {
           profileImageView.kf.setImage(with: profileImageURL)
         } else {
           profileImageView.image = nil
         }
         likeCountView.isHidden = false
-        likeCountView.count = imageInfo.likes
+        likeCountView.count = imageItem.likes
       } else {
         imageView.image = nil
         profileImageView.image = nil
         profileImageView.image = nil
         likeCountView.isHidden = true
       }
-      userNameLabel.text = imageInfo?.user.name
+      userNameLabel.text = imageItem?.user.name
     }
   }
 
@@ -123,19 +123,19 @@ final class ImageInfoCell: UICollectionViewCell {
   }
 
   override func systemLayoutSizeFitting(_ targetSize: CGSize, withHorizontalFittingPriority horizontalFittingPriority: UILayoutPriority, verticalFittingPriority: UILayoutPriority) -> CGSize {
-    guard let imageInfo else {
+    guard let imageItem else {
       return targetSize
     }
-    let ratio = targetSize.width / CGFloat(imageInfo.width)
-    return CGSize(width: CGFloat(imageInfo.width) * ratio, height: CGFloat(imageInfo.height) * ratio)
+    let ratio = targetSize.width / CGFloat(imageItem.width)
+    return CGSize(width: CGFloat(imageItem.width) * ratio, height: CGFloat(imageItem.height) * ratio)
   }
 }
 
-// MARK: - ImageInfoCell Preview
+// MARK: - ImageItemCell Preview
 
 #Preview {
-  ImageInfoCell().then {
-    $0.imageInfo = .preview
+  ImageItemCell().then {
+    $0.imageItem = .preview
     $0.snp.makeConstraints {
       $0.size.equalTo(200)
     }

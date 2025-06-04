@@ -11,7 +11,7 @@ import Kingfisher
 import Then
 
 final class ImageDetailViewController: UIViewController {
-  private let imageInfo: ImageInfo
+  private let imageItem: ImageItem
 
   private let imageDownloader: ImageDownloader
   private let imageWriter: ImageWriter
@@ -61,8 +61,8 @@ final class ImageDetailViewController: UIViewController {
     $0.configuration?.buttonSize = .large
   }
 
-  init(imageInfo: ImageInfo) {
-    self.imageInfo = imageInfo
+  init(imageItem: ImageItem) {
+    self.imageItem = imageItem
     self.imageDownloader = ImageDownloader()
     self.imageWriter = ImageWriter()
     self.imageDownloader.imageWriter = self.imageWriter
@@ -81,7 +81,7 @@ final class ImageDetailViewController: UIViewController {
 
   override func viewDidLoad() {
     super.viewDidLoad()
-    title = imageInfo.description ?? imageInfo.user.name
+    title = imageItem.description ?? imageItem.user.name
     navigationItem.largeTitleDisplayMode = .never
     view.backgroundColor = .systemBackground
 
@@ -134,7 +134,7 @@ final class ImageDetailViewController: UIViewController {
     imageView.snp.makeConstraints {
       $0.top.equalTo(profileImageView.snp.bottom).offset(8)
       $0.leading.trailing.equalToSuperview()
-      $0.height.equalTo(imageView.snp.width).multipliedBy(CGFloat(imageInfo.height) / CGFloat(imageInfo.width))
+      $0.height.equalTo(imageView.snp.width).multipliedBy(CGFloat(imageItem.height) / CGFloat(imageItem.width))
     }
 
     // Description
@@ -167,7 +167,7 @@ final class ImageDetailViewController: UIViewController {
 
 extension ImageDetailViewController {
   private func downloadImage() {
-    guard let imageURL = URL(string: imageInfo.images.raw) else {
+    guard let imageURL = URL(string: imageItem.images.raw) else {
       return
     }
     downloadButton.isEnabled = false
@@ -191,28 +191,28 @@ extension ImageDetailViewController {
     let action = UIAction { [unowned self] _ in self.downloadImage() }
     downloadButton.addAction(action, for: .primaryActionTriggered)
 
-    if let profileImageURL = imageInfo.user.profileImageURL {
+    if let profileImageURL = imageItem.user.profileImageURL {
       profileImageView.kf.setImage(with: profileImageURL)
     }
-    userNameLabel.text = imageInfo.user.name
-    if let createdAt = imageInfo.createdAt {
+    userNameLabel.text = imageItem.user.name
+    if let createdAt = imageItem.createdAt {
       createdDateLabel.text = createdAt.formatted(date: .abbreviated, time: .omitted)
     } else {
       createdDateLabel.text = "-"
     }
 
-    if let imageURL = URL(string: imageInfo.images.raw) {
+    if let imageURL = URL(string: imageItem.images.raw) {
       imageView.kf.setImage(with: imageURL)
     }
 
-    descriptionLabel.text = imageInfo.description ?? "-"
-    imageSizeLabel.text = "\(imageInfo.width.formatted(.number))x\(imageInfo.height.formatted(.number))"
-    likeCountView.count = imageInfo.likes
+    descriptionLabel.text = imageItem.description ?? "-"
+    imageSizeLabel.text = "\(imageItem.width.formatted(.number))x\(imageItem.height.formatted(.number))"
+    likeCountView.count = imageItem.likes
   }
 }
 
 // MARK: - ImageDetailViewController Preview
 
 #Preview {
-  NavigationController(rootViewController: ImageDetailViewController(imageInfo: .preview))
+  NavigationController(rootViewController: ImageDetailViewController(imageItem: .preview))
 }

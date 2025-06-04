@@ -1,5 +1,5 @@
 //
-//  ImaeInfo.swift
+//  ImageItem.swift
 //  ImageCollection
 //
 //  Created by 정재성 on 6/1/25.
@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct ImageInfo: Decodable {
+struct ImageItem: Decodable {
   let id: String
   let width: Int
   let height: Int
@@ -30,9 +30,9 @@ struct ImageInfo: Decodable {
   }
 }
 
-// MARK: - ImageInfo.Images
+// MARK: - ImageItem.Images
 
-extension ImageInfo {
+extension ImageItem {
   struct Images: Decodable, Equatable {
     let raw: String
     let full: String
@@ -42,16 +42,16 @@ extension ImageInfo {
   }
 }
 
-// MARK: - ImageInfo (Hashable)
+// MARK: - ImageItem (Hashable)
 
-extension ImageInfo: Hashable {
+extension ImageItem: Hashable {
   func hash(into hasher: inout Hasher) {
     hasher.combine(id)
   }
 }
 
-extension ImageInfo {
-  static var preview: ImageInfo {
+extension ImageItem {
+  static var preview: ImageItem {
     let json = """
       {
         "id": "kgJw1yur2Js",
@@ -158,6 +158,6 @@ extension ImageInfo {
       """
     let decoder = JSONDecoder()
     decoder.dateDecodingStrategy = .iso8601
-    return try! decoder.decode(ImageInfo.self, from: json.data(using: .utf8)!)
+    return try! decoder.decode(ImageItem.self, from: json.data(using: .utf8)!)
   }
 }

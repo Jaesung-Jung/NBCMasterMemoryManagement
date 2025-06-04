@@ -11,9 +11,9 @@ import Then
 final class ImageRepository {
   private let host = URL(string: "https://unsplash.com")!
   private let session = URLSession.shared
-  private var completionHandler: ((Result<[ImageInfo], Swift.Error>) -> Void)?
+  private var completionHandler: ((Result<[ImageItem], Swift.Error>) -> Void)?
 
-  func fetchImages(category: ImageCategory, page: Int? = nil, completion: @escaping (Result<[ImageInfo], Swift.Error>) -> Void) {
+  func fetchImages(category: ImageCategory, page: Int? = nil, completion: @escaping (Result<[ImageItem], Swift.Error>) -> Void) {
     do {
       let page = page ?? Int.random(in: 1...100)
       let count = 30
@@ -27,7 +27,7 @@ final class ImageRepository {
           let decoder = JSONDecoder().then {
             $0.dateDecodingStrategy = .iso8601
           }
-          try completion(.success(decoder.decode([ImageInfo].self, from: data)))
+          try completion(.success(decoder.decode([ImageItem].self, from: data)))
         } catch {
           completion(.failure(error))
         }
