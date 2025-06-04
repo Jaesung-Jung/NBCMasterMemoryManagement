@@ -11,6 +11,7 @@ import Then
 
 final class ImageDetailViewController: UIViewController {
   private let imageDownloader = ImageDownloader()
+  private let imageWriter = ImageWriter()
   private let imageItem: ImageItem
 
   private let profileImageView = UIImageView().then {
@@ -61,6 +62,7 @@ final class ImageDetailViewController: UIViewController {
   init(imageItem: ImageItem) {
     self.imageItem = imageItem
     super.init(nibName: nil, bundle: nil)
+    self.imageWriter.delegate = self
   }
 
   @available(*, unavailable)
@@ -152,6 +154,18 @@ final class ImageDetailViewController: UIViewController {
   }
 }
 
+// MARK: - ImageDetailViewController (ImageWrite.Delegate)
+
+extension ImageDetailViewController: ImageWriter.Delegate {
+  func imageWrite(_ imageWriter: ImageWriter, didCompleteWriteFilesWithError error: (any Error)?) {
+    downloadButton.isEnabled = true
+    downloadButton.configuration?.showsActivityIndicator = false
+    let alertController = UIAlertController(title: "알림", message: "이미지 저장 완료!", preferredStyle: .alert)
+    alertController.addAction(UIAlertAction(title: "확인", style: .default))
+    present(alertController, animated: true)
+  }
+}
+
 // MARK: - ImageDetailViewController (Private)
 
 extension ImageDetailViewController {
@@ -161,10 +175,15 @@ extension ImageDetailViewController {
     }
     downloadButton.isEnabled = false
     downloadButton.configuration?.showsActivityIndicator = true
+    imageDownloader.downloadImage(imageURL) { _, image in
+      if let image {
+        self.imageWriter.writeImage(image)
+      }
+    }
   }
 
   private func configure() {
-    let action = UIAction { [unowned self] _ in self.downloadImage() }
+    let action = UIAction { _ in self.downloadImage() }
     downloadButton.addAction(action, for: .primaryActionTriggered)
 
     if let profileImageURL = imageItem.user.profileImageURL {
