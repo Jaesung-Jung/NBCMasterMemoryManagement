@@ -7,14 +7,11 @@
 
 import UIKit
 import SnapKit
-import Kingfisher
 import Then
 
 final class ImageDetailViewController: UIViewController {
+  private let imageDownloader = ImageDownloader()
   private let imageItem: ImageItem
-
-  private let imageDownloader: ImageDownloader
-  private let imageWriter: ImageWriter
 
   private let profileImageView = UIImageView().then {
     $0.contentMode = .scaleAspectFill
@@ -63,20 +60,12 @@ final class ImageDetailViewController: UIViewController {
 
   init(imageItem: ImageItem) {
     self.imageItem = imageItem
-    self.imageDownloader = ImageDownloader()
-    self.imageWriter = ImageWriter()
-    self.imageDownloader.imageWriter = self.imageWriter
-    self.imageWriter.imageDownloader = self.imageDownloader
     super.init(nibName: nil, bundle: nil)
   }
 
   @available(*, unavailable)
   required init?(coder: NSCoder) {
     fatalError("init(coder:) has not been implemented")
-  }
-
-  deinit {
-    ImageCache.default.clearMemoryCache()
   }
 
   override func viewDidLoad() {
@@ -172,19 +161,6 @@ extension ImageDetailViewController {
     }
     downloadButton.isEnabled = false
     downloadButton.configuration?.showsActivityIndicator = true
-    imageDownloader.downloadImage(imageURL) {
-      switch $0 {
-      case .downloading(let progress):
-        print("Downloading progress: \(progress)")
-      case .completed(let image):
-        if let image {
-          self.imageWriter.writeToFile(image) {
-            self.downloadButton.isEnabled = true
-            self.downloadButton.configuration?.showsActivityIndicator = false
-          }
-        }
-      }
-    }
   }
 
   private func configure() {
@@ -192,7 +168,9 @@ extension ImageDetailViewController {
     downloadButton.addAction(action, for: .primaryActionTriggered)
 
     if let profileImageURL = imageItem.user.profileImageURL {
-      profileImageView.kf.setImage(with: profileImageURL)
+      imageDownloader.downloadImage(profileImageURL) { _, image in
+        self.profileImageView.image = image
+      }
     }
     userNameLabel.text = imageItem.user.name
     if let createdAt = imageItem.createdAt {
@@ -202,7 +180,9 @@ extension ImageDetailViewController {
     }
 
     if let imageURL = URL(string: imageItem.images.raw) {
-      imageView.kf.setImage(with: imageURL)
+      imageDownloader.downloadImage(imageURL) { _, image in
+        self.imageView.image = image
+      }
     }
 
     descriptionLabel.text = imageItem.description ?? "-"

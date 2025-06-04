@@ -8,9 +8,10 @@
 import UIKit
 import SnapKit
 import Then
-import Kingfisher
 
 final class ImageItemCell: UICollectionViewCell {
+  private let imageDownloader = ImageDownloader()
+
   private let imageView = UIImageView().then {
     $0.contentMode = .scaleAspectFill
     $0.clipsToBounds = true
@@ -39,12 +40,20 @@ final class ImageItemCell: UICollectionViewCell {
     didSet {
       if let imageItem {
         if let imageURL = URL(string: imageItem.images.regular) {
-          imageView.kf.setImage(with: imageURL, options: [.transition(.fade(0.3))])
+          imageDownloader.downloadImage(imageURL) { url, image in
+            if imageURL == url {
+              self.imageView.image = image
+            }
+          }
         } else {
           imageView.image = nil
         }
         if let profileImageURL = imageItem.user.profileImageURL {
-          profileImageView.kf.setImage(with: profileImageURL)
+          imageDownloader.downloadImage(profileImageURL) { url, image in
+            if profileImageURL == url {
+              self.profileImageView.image = image
+            }
+          }
         } else {
           profileImageView.image = nil
         }

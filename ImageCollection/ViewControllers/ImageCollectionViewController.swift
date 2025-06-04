@@ -7,7 +7,6 @@
 
 import UIKit
 import SnapKit
-import Kingfisher
 import Then
 
 final class ImageCollectionViewController: UIViewController {
@@ -21,25 +20,15 @@ final class ImageCollectionViewController: UIViewController {
 
   private lazy var dataSource = makeCollectionViewDataSource(collectionView)
 
-  private var deinitHandler: (() -> Void)?
-
   init(category: ImageCategory) {
     self.repository = ImageRepository()
     self.category = category
     super.init(nibName: nil, bundle: nil)
-    self.deinitHandler = {
-      ImageCache.default.clearMemoryCache()
-      print("deinit \(self)")
-    }
   }
 
   @available(*, unavailable)
   required init?(coder: NSCoder) {
     fatalError("init(coder:) has not been implemented")
-  }
-
-  deinit {
-    deinitHandler?()
   }
 
   override func viewDidLoad() {

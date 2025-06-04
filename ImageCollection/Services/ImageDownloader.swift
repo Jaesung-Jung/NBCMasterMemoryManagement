@@ -2,55 +2,23 @@
 //  ImageDownloader.swift
 //  ImageCollection
 //
-//  Created by 정재성 on 6/1/25.
+//  Created by 정재성 on 6/4/25.
 //
 
 import UIKit
 
-final class ImageDownloader: NSObject {
-  private var currentTask: URLSessionDownloadTask?
-  private var completionHandler: ((Status) -> Void)?
+final class ImageDownloader {
+  let session = URLSession(configuration: .default)
 
-  var imageWriter: ImageWriter?
-
-  func downloadImage(_ imageURL: URL, completion: @escaping (Status) -> Void) {
-    currentTask?.cancel()
-    completionHandler = nil
-
-    let downloadSession = URLSession(configuration: .default, delegate: self, delegateQueue: OperationQueue())
-    let task = downloadSession.downloadTask(with: URLRequest(url: imageURL))
-    task.resume()
-
-    currentTask = task
-    completionHandler = completion
-  }
-}
-
-// MARK: - ImageDownloader.Status
-
-extension ImageDownloader {
-  enum Status {
-    case downloading(Float)
-    case completed(UIImage?)
-  }
-}
-
-// MARK: - ImageDownloader (URLSessionDownloadDelegate)
-
-extension ImageDownloader: URLSessionDownloadDelegate {
-  func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didWriteData bytesWritten: Int64, totalBytesWritten: Int64, totalBytesExpectedToWrite: Int64) {
-    completionHandler?(.downloading(Float(totalBytesWritten) / Float(totalBytesExpectedToWrite)))
-  }
-
-  func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didFinishDownloadingTo location: URL) {
-    defer {
-      currentTask = nil
-      completionHandler = nil
-    }
-    guard let data = try? Data(contentsOf: location), let image = UIImage(data: data) else {
-      completionHandler?(.completed(nil))
-      return
-    }
-    completionHandler?(.completed(image))
+  func downloadImage(_ url: URL, completion: @escaping (URL, UIImage?) -> Void) {
+    let request = URLRequest(url: url, cachePolicy: .reloadIgnoringLocalAndRemoteCacheData)
+    session
+      .dataTask(with: request) { data, _, _ in
+        let image = data.flatMap { UIImage(data: $0) }
+        DispatchQueue.main.async {
+          completion(url, image)
+        }
+      }
+      .resume()
   }
 }
